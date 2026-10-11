@@ -20,6 +20,9 @@ import androidx.compose.ui.unit.dp
 import com.google.firebase.auth.FirebaseAuth
 import dpa.pc1_esan_solis_hancco.data.AuthRepository
 import dpa.pc1_esan_solis_hancco.screens.AutenticacionScreen
+import android.widget.Toast
+import androidx.compose.ui.platform.LocalContext
+import dpa.pc1_esan_solis_hancco.screens.JugadaScreen
 
 @Composable
 fun AppNavigation(modifier: Modifier = Modifier) {
@@ -43,6 +46,7 @@ fun AppNavigation(modifier: Modifier = Modifier) {
         modifier = modifier.fillMaxSize()
     ) {
         val usuarioActual = usuario
+        val context = LocalContext.current
 
         if (usuarioActual == null) {
             key(registro) {
@@ -55,29 +59,26 @@ fun AppNavigation(modifier: Modifier = Modifier) {
             }
         } else {
             key(usuarioActual.uid) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(24.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
+                Column {
                     Text(
-                        text = "Sesión iniciada",
-                        style = MaterialTheme.typography.headlineMedium
+                        text = "Participante: ${usuarioActual.email}",
+                        modifier = Modifier.padding(16.dp)
                     )
 
-                    Text("Participante: ${usuarioActual.email}")
-
-                    Text("Aquí conectaremos la pantalla de jugada.")
-
-                    Button(
-                        onClick = {
+                    JugadaScreen(
+                        uid = usuarioActual.uid,
+                        onVerSeguimiento = {
+                            Toast.makeText(
+                                context,
+                                "El seguimiento se conectará en el siguiente paso.",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        },
+                        onCerrarSesion = {
                             registro = false
                             AuthRepository.cerrarSesion()
                         }
-                    ) {
-                        Text("Cerrar sesión")
-                    }
+                    )
                 }
             }
         }
