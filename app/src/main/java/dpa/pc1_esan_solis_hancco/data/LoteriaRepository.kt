@@ -6,6 +6,7 @@ import com.google.firebase.firestore.ListenerRegistration
 import dpa.pc1_esan_solis_hancco.model.Jugada
 import dpa.pc1_esan_solis_hancco.model.Sorteo
 import kotlinx.coroutines.tasks.await
+import dpa.pc1_esan_solis_hancco.model.Bolilla
 
 object LoteriaRepository {
     const val SORTEO_ID = "prueba"
@@ -163,5 +164,67 @@ object LoteriaRepository {
 
             Unit
         }.await()
+    }
+    fun escucharBolillas(
+        onDatos: (List<Bolilla>) -> Unit,
+        onError: (String) -> Unit
+    ): ListenerRegistration {
+        return sorteoRef()
+            .collection("bolillas")
+            .addSnapshotListener { resultado, fallo ->
+                if (fallo != null) {
+                    onError(fallo.message ?: "No se pudieron leer las bolillas.")
+                    return@addSnapshotListener
+                }
+
+                try {
+                    require(resultado != null) {
+                        "No se recibió la colección de bolillas."
+                    }
+
+                    val bolillas = resultado.documents.map { documento ->
+                        val numero = documento.get("numero") as? Long
+                            ?: throw Exception("numero debe ser entero.")
+
+                        val orden = documento.get("orden") as? Long
+                            ?: throw Exception("orden debe ser entero.")
+
+                        require(numero in 1L..45L) {
+                            "Las bolillas deben estar entre 1 y 45."
+                        }
+
+                        require(orden in 1L..6L) {
+                            "El orden debe estar entre 1 y 6."
+                        }
+
+                        Bolilla(
+                            id = documento.id,
+                            numero = numero.toInt(),
+                            orden = orden.toInt()
+                        )
+                    }.sortedBy { it.orden }
+
+                    require(bolillas.size <= 6) {
+                        "No puede haber más de seis bolillas."
+                    }
+
+                    require(
+                        bolillas.map { it.numero }.distinct().size == bolillas.size
+                    ) {
+                        "Hay bolillas con números repetidos."
+                    }
+
+                    require(
+                        bolillas.map { it.orden } ==
+                                (1..bolillas.size).toList()
+                    ) {
+                        "Los órdenes deben ser únicos y consecutivos desde 1."
+                    }
+
+                    onDatos(bolillas)
+                } catch (e: Exception) {
+                    onError(e.message ?: "Datos de bolillas incorrectos.")
+                }
+            }
     }
 }
