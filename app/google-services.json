@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "79914267632",
+    "project_id": "pc1-esan-solis-hancco",
+    "storage_bucket": "pc1-esan-solis-hancco.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:79914267632:android:db515e5f22bc931214a335",
+        "android_client_info": {
+          "package_name": "dpa.pc1_esan_solis_hancco"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC1s1x-HYl9ga--mhe60RWlXKSklsfa0UY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

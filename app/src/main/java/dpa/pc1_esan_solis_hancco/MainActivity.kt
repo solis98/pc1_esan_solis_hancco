@@ -20,8 +20,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             Pc1_esan_solis_hanccoTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
+                    FirebaseConnectionScreen(
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
