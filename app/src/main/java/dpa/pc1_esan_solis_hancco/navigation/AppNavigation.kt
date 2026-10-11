@@ -23,6 +23,11 @@ import dpa.pc1_esan_solis_hancco.screens.AutenticacionScreen
 import android.widget.Toast
 import androidx.compose.ui.platform.LocalContext
 import dpa.pc1_esan_solis_hancco.screens.JugadaScreen
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import dpa.pc1_esan_solis_hancco.screens.SeguimientoScreen
 
 @Composable
 fun AppNavigation(modifier: Modifier = Modifier) {
@@ -59,26 +64,50 @@ fun AppNavigation(modifier: Modifier = Modifier) {
             }
         } else {
             key(usuarioActual.uid) {
-                Column {
+                val navController = rememberNavController()
+
+                val cerrarSesion: () -> Unit = {
+                    registro = false
+                    AuthRepository.cerrarSesion()
+                }
+
+                Column(
+                    modifier = Modifier.fillMaxSize()
+                ) {
                     Text(
                         text = "Participante: ${usuarioActual.email}",
                         modifier = Modifier.padding(16.dp)
                     )
 
-                    JugadaScreen(
-                        uid = usuarioActual.uid,
-                        onVerSeguimiento = {
-                            Toast.makeText(
-                                context,
-                                "El seguimiento se conectará en el siguiente paso.",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        },
-                        onCerrarSesion = {
-                            registro = false
-                            AuthRepository.cerrarSesion()
+                    NavHost(
+                        navController = navController,
+                        startDestination = "jugada",
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth()
+                    ) {
+                        composable("jugada") {
+                            JugadaScreen(
+                                uid = usuarioActual.uid,
+                                onVerSeguimiento = {
+                                    navController.navigate("seguimiento") {
+                                        launchSingleTop = true
+                                    }
+                                },
+                                onCerrarSesion = cerrarSesion
+                            )
                         }
-                    )
+
+                        composable("seguimiento") {
+                            SeguimientoScreen(
+                                uid = usuarioActual.uid,
+                                onVolver = {
+                                    navController.popBackStack()
+                                },
+                                onCerrarSesion = cerrarSesion
+                            )
+                        }
+                    }
                 }
             }
         }
